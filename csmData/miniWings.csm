@@ -1,0 +1,10 @@
+# Parameterized geometry for MiniWings Research project.
+# Research performed by Micheal Mongin, Josh Deslich, and Aaron Altman.
+# Contact Micheal Monign: monginm1@udayton.edu for any questions.
+
+# Geometry code developed by: Josh Deslich
+# Contact Josh Deslich: jpdeslich@gmail.com for code/analysis related questions.
+
+# --------------------- MiniWing Parameters -------------
+DESVAR   chord    1.0
+DESVAR

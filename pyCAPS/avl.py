@@ -4,6 +4,7 @@
 import pyCAPS
 import os
 ## [import]
+## Comment
 
 # -----------------------------------------------------------------
 # Initialize capsProblem object

@@ -1,0 +1,45 @@
+\section{Introduction}
+
+The Oblique Flying Wing (OFW) is a unique configuration that lends itself to many aerodynamic advantages made possible through asymmetric sweep and asymmetries in the planform.
+Asymmetric sweep, or slew, allows for the OFW to reduce its span and frontal area, reducing the wave drag at transonic and supersonic flight conditions \cite{jones1977oblique, jones1972reduction}.
+Over the course of a mission, an OFW can achieve various slew angles depending on the flight regime.
+In low subsonic flight regimes, a low slew angle will provide efficient lift production, but in supersonic flight an increased slew angle also for reduced wave drag.
+This makes an OFW a very versatile configuration capable of efficient flight for a variety of missions.
+
+In addition to varying slew angle, an OFW by definition does not have tail empennages, again reducing the drag on the configuration.
+While efficiency is increased, the absence of empennage surfaces makes an OFW difficult to control directionally and brings about extra design considerations for longitudinal control.
+There are only a few configurations that have attempted an oblique wing, with the most notable example being the NASA AD-1.
+Even with the use of conventional tail empennage control surfaces, the AD-1 still experienced many control deficiencies \cite{nasaAD_1}.
+During flight testing, it was found that there was a strong cross-coupling of pitch and roll which was exacerbated at high slew angles, degrading the handling qualities.
+In addition to the cross-coupling, roll maneuvers were difficult at high slew angles due to deficiencies in directional control authority.
+If the vehicle was not properly trimmed with the rudder, roll control authority was diminished, preventing the completion of the maneuver.
+In all cases, test pilots noted that the AD-1 experienced degraded handling at high slew angles and that for trimmed flight, the AD-1 experienced lateral instabilities.
+Overall, the AD-1 program brought to light many of the challenges when developing an oblique wing and even with conventional control systems, achieving acceptable handling at high slew angles was difficult.
+
+Since the AD-1, other configurations were developed that do not have conventional empennage control surfaces, notably, the B-2 bomber.
+The B-2 utilizes split ailerons, or split rudders to gain directional control.
+This method of control primarily relies on drag production caused by the split ailerons separating the flow over the wing.
+In the case of an OFW, split ailerons have diminished control authority with increasing slew angle, limiting their effectiveness \cite{desktop_aero}.
+For a variable configuration such as an OFW, using a split aileron control device only provides control over a small flight envelope, which is why a different approach is needed when developing a control system for an OFW.
+
+Active Aeroelastic Wing (AAW) research has shown that including spanwise leading edge control surfaces can reduce control deflections needed for trimmed flight.
+This is primarily driven by the stiffness reductions in the AAW, but even the baseline stiff wings show reduced control deflections for trim when the leading edge is considered \cite{AAW_multipleCS}.
+Other objectives are achievable other than efficient trim such as increased control performance and reduced wing-root bending moment which was seen in the X-53 flight test program \cite{x53Summary, zink2001maneuver}.
+
+A preceding effort to the AAW research was the Mission Adaptive Wing (MAW) program, which used the leading and trailing edge control surfaces to vary the camber of airfoil sections along the span.
+Like the AAW program, MAW showed that increased maneuverability was achievable with variable camber \cite{MAW_flight}.
+Using ideas from both MAW and AAW, the use of conformal control surfaces rather than conventional control surfaces can further reduce the control surface deflections required for trim and still gain the increased maneuverability \cite{FW_conformal}.
+Recent flight tests from NASA, AFRL, and Flexsys have shown the conformal, complaint control surfaces have real potential to improve air vehicle designs.
+The ability to tailor the spanwise wing loading to reduce wing-root bending moment can allow for lighter structures and improve overall mission performance \cite{flexsys_1}.
+
+In addition to reducing wing-root bending moment and other structural objectives, the complaint control surfaces on an OFW can be used to increase directional control.
+Developing an efficient method to alleviate the historical directional instabilities is a critical component in making an OFW a viable configuration.
+Recent work considering a rigid OFW has shown that many severe aerodynamic moments can be mitigated with a tailored geometric twist distribution \cite{deslich2020}.
+Exchanging a fixed geometric twist distribution with compliant control surfaces allows for a variable geometry that could provide more control over a larger flight envelope.
+
+With the benefits of compliant control surfaces on both leading and trailing edges, including them in the early design process can likely improve on the what was shown in the MAW and AAW efforts.
+The ultimate goal is to integrate aeroelastic effects with the trim analysis but for this paper, the scope of work is limited to understanding trim and control objectives on a rigid configuration.
+Using an OFW configuration based on artistic representations of the DARPA/Northop-Grumman Switchblade OFW planform, a baseline configuration without compliant leading edge control surfaces is compared to a configuration which utilizes the leading edge.
+There are many flight conditions that could benefit from a compliant leading edge such as drag reduction in level-flight, or minimization of wing-root bending moment for a pull-up maneuver.
+For this study, a series of 1-g flight conditions will be investigated with RANS CFD to evaluate the effectiveness of the leading edge to improve directional control.
+It is expected that the leading edge will have a significant impact on the directional control as recent work from NASA has shown the power of using different lift distributions to produce proverse directional control \cite{bowers2016wings}.

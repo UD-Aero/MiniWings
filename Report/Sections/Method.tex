@@ -1,0 +1,176 @@
+\section{Methodology}
+
+\subsection{Model Definition}
+The OFW configuration used in this study is based on artistic representations of the DARPA/Northrop-Grumman Switchblade planform \cite{deslich2020}.
+Two configurations are evaluated, a baseline OFW with only trailing edge control surfaces, and a compliant configuration utilizing two compliant leading edge control surfaces.
+Both models are parametrically defined in Engineering Sketch Pad (ESP) to allow for rapid model generation and integration into the analysis environment \cite{EngSktPad}.
+Figure \ref{fig:method:OFW_cs} shows the control surface conventions that are used along with the control variables to determine control surfaces deflection.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.8\textwidth]{Figures/OFW_PA_desVar}
+  \caption{OFW Model with Control Surfaces and Control Variables}
+  \label{fig:method:OFW_cs}
+\end{figure}
+\FloatBarrier
+
+The trailing edge control surfaces for both configurations are conventional with a single design parameter controlling the deflection angle of the surface.
+An example of a trailing control surface deflection is shown in Figure \ref{fig:method:OFW_TEcs}.
+For the compliant leading edge control surfaces on the compliant configuration, three control points are defined as representative actuator locations.
+These actuator control points determine the local deflection of the leading edge control surface, and like the Flexsys ATE control surface, the leading edge control surface is linearly connected between the two control points.
+Beyond the outer most control points, $L_{LE}$ and $R_{LE}$, the leading edge surface is linearly connected to the wingtip airfoil sections to provide a smooth transition between the control point and wingtip airfoils.
+
+\begin{figure}[!ht]
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{Figures/OFW_TEcs}
+    \caption{Conventional Trailing Edge Control Surfaces}
+    \label{fig:method:OFW_TEcs}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{Figures/OFW_LEcs}
+    \caption{Compliant Leading Edge Control Surfaces}
+    \label{fig:method:OFW_LEcs}
+  \end{subfigure}
+  \caption{Examples of Control Surface Deflections for an Oblique Flying Wing}
+\end{figure}
+
+The trailing edge control surfaces have a constant chord length of $20\%$ of the maximum wing chord and the inboard surfaces have equal spans.
+The two outboard trailing edge control surfaces TE1 and TE6 have slightly varied spans in comparison due to significant tapering at the wingtips.
+From analysis, the moment coefficients will be evaluated at the center of gravity (CG) location shown in Figure \ref{fig:method:OFW_cs}.
+At each flight condition, both OFW configurations will have a weight of 20,000 lbs and the CG location will remain at a constant location on the planform independent of slew angle.
+
+\subsection{Optimization Problem Definition}
+
+The optimization problem is developed to evaluate the benefits provided by a compliant leading edge on directional control in a 1-g flight condition.
+Historically, the aerodynamic performance was compromised over the entire flight regime to account for directional instabilities.
+Traditionally, trim analysis and trim optimization considers the lift/weight equilibrium and pitching moment equilibrium as the primary constraints.
+For most configurations this would be sufficient, but for an asymmetric OFW configuration, inclusion of the lateral (roll) moment coefficient as an equilibrium constraint is required.
+In addition to the rolling moment, the side force is required as an equilibrium constraint as it was identified in the AD-1 program that asymmetric sweep led to a strong side force.
+The optimization problem is shown in Equations \eqref{eq:method:trimProblem_1} and \eqref{eq:method:trimProblem_2} where $\alpha$ is the angle of attack and $\delta_i$ is the deflection angles of each control surface or control point.
+For the baseline OFW configuration, only the trailing edge control surfaces and angle of attack are considered for the optimization problem.
+The compliant configuration includes the three leading edge control points along with the trailing edge control surfaces and angle of attack.
+The objective of each optimization problem will be to maximize the yawing moment in a prescribed direction with a drag penalization to dissuade the use of drag to gain directional control.
+For a yaw left direction, the following problem is used to maximize the yaw left moment with a drag penalty.
+
+\begin{equation}
+  \begin{aligned}
+  & \underset{\alpha, \delta_i}{\text{minimize}}
+  & &  C_n  \left(\alpha, \delta_i \right) + C_D \left(\alpha, \delta_i \right) \\
+  & \text{subject to}
+    & &   0^\circ \leq \alpha \leq 10^\circ \\
+  & & & -10^\circ \leq \delta_i \leq 10^\circ \\
+  & & & -\sigma \leq \sum F_i  \leq \sigma \\
+  & & & -\sigma \leq \sum M_j  \leq \sigma \\
+  \end{aligned}
+  \label{eq:method:trimProblem_1}
+\end{equation}
+
+\noindent Similarly, a yaw right direction is maximized with a drag penalty.
+
+\begin{equation}
+  \begin{aligned}
+  & \underset{\alpha, \delta_i}{\text{minimize}}
+  & &  -C_n  \left(\alpha, \delta_i \right) + C_D \left(\alpha, \delta_i \right) \\
+  & \text{subject to}
+    & &   0^\circ \leq \alpha \leq 10^\circ \\
+  & & & -10^\circ \leq \delta_i \leq 10^\circ \\
+  & & & -\sigma \leq \sum F_i  \leq \sigma \\
+  & & & -\sigma \leq \sum M_j  \leq \sigma \\
+  \end{aligned}
+  \label{eq:method:trimProblem_2}
+\end{equation}
+
+It is expected that the optimizer will find a solution that can utilize some of the aerodynamic principles of proverse yaw, allowing for more efficient production of directional control.
+A numerical tolerance, $\sigma$, is placed on the force and moment equilibrium constraints to allow the optimizer to balance all the equilibrium constraints.
+The SLSQP gradient based optimization routine is used to determine a feasible solution for each problem subject to the tolerance on the constraints.
+Gradients are approximated using a forward finite-difference approximation with a step size of $\delta_i=0.5$.
+
+Three different flight conditions, detailed in Table \ref{tab:method:trimPoints}, are investigated over a range of Mach numbers for each optimization problem.
+Each condition will have a separate mesh developed based on the Reynolds number of each flight condition.
+The meshes generated with AFRL3/4 will chosen based on the criteria of a maximum y+ value of 1 and on mesh independence.
+
+% \begin{figure}[h]
+%   \centering
+%   \includegraphics[width=0.6\textwidth]{Figures/trimPoints}
+%   \caption{Mach and altitude points of different trim conditions.}
+%   \label{fig:method:trimPoints}
+% \end{figure}
+
+\begin{table}[h]
+  \caption{Test Matrix for Trim Flight Conditions}
+  \centering
+  \begin{tabular}{ccccc}
+    \toprule[1.5pt]
+    \textbf{Trim Points} & \textbf{Mach Number} & \textbf{Slew Angle - Degrees} & \textbf{Altitude - Feet} & \textbf{Reynolds Number}\\
+    \midrule
+    1 & 0.30 &  0.0 &  5000 & 60,087,442 \\
+    2 & 0.75 & 45.0 & 25000 & 119,097,772 \\
+    3 & 1.40 & 65.0 & 40000 & 201,143,900 \\
+    \bottomrule[1.5pt]
+  \end{tabular}
+  \label{tab:method:trimPoints}
+\end{table}
+\FloatBarrier
+
+\subsection{Optimization and Computational Environment}
+
+The execution the proposed trim analysis problems utilizes a series of computational tools to enable rapid geometric modeling, meshing, and analysis.
+ESP is used to model the OFW configurations as it is integrated into a Computational Analysis Prototype Synthesis (CAPS) framework which utilizes geometric parameters and meta-data in the ESP models for analysis \cite{EngSktPad, CAPScite}.
+The optimization problems will be driven using OpenMDAO where CAPS and pyCAPS are used to link the optimization design variables with the geometric parameters \cite{pycaps, openmdao}.
+This integrated OpenMDAO/pyCAPS/ESP framework creates an interconnected system which will maintain consistent definitions for design and analysis parameters as well as facilitate the approximation of gradients and objective function evaluation.
+An XDSM diagram is shown in Figure \ref{fig:method:xdsm} to show the integration of the miriade of computational tools which are integrated with OpenMDAO and pyCAPS.
+
+\begin{figure}[h]
+  \centering
+  \input{Figures/mdf.tikz}
+  \caption{XDSM for Trim Optmization Environment \cite{xdsm}}
+  \label{fig:method:xdsm}
+\end{figure}
+
+For meshing the geometry from ESP, automated meshing tools AFLR3 and AFLR4 are utilized within the CAPS environment to generated the required surface, boundary-layer, and volume meshes \cite{aflr3, aflr4}.
+FUN3D (Fully Unstructured Navier-Stokes) is used to solve for the integrated forces and moments about the approximated CG location and then pass the results onto OpenMDAO where the constraints and objective function can be evaluated \cite{fun3d}.
+
+\subsection{FUN3D Solution Parameters}
+
+The CFD RANS problem was developed to account for the Mach and viscous effects that the OFW will experience at many of its flight conditions.
+Initially, the steady, compressible, and turbulent Navier-Stokes equations are used with the Spalart-Allmaras turbulence model \cite{spalartModel}.
+A freestream turbulence value of 3.0 is used for the SA turbulence model, with a freestream turbulence intensity of -0.001, and uses the linear Reynolds stress model.
+
+Flux limiters are used in the solution setup, utilizing the dissipative LDFSS method for the inviscid flux residual.
+The van Leer construction is used for the Jacobian and the \textit{hvanleer} flux limiter is used.
+A scheduled CFL number is initialized at 0.1 and then linearly increased to 20.0 over 1000 iterations.
+
+\subsection{Mesh Convergence Study}
+
+A mesh convergence study is performed to determine the automated meshing parameters required to produce physical and realistic solutions.
+In doing this, a computational domain is created to resolve the relevant flow physics in order to accurately determine the integrated forces and moments on the OFW.
+Initially, the mesh convergence study was performed using the aforementioned OFW configuration with no control surface deflections.
+Figure \ref{fig:method:gridConvergence} shows that with increasing mesh density, the solution does not significantly change, but this is for the simplest configuration that is expected.
+A subsequent mesh convergence study will be performed to show mesh independence for an OFW configuration with deflected control surfaces.
+This will aid in developing a robust set of meshing parameters to be used throughout the optimization process.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.7\textwidth]{Figures/grid_convergence_study}
+  \caption{Preliminary Grid Convergence Study using AFLR3 and AFLR4.}
+  \label{fig:method:gridConvergence}
+\end{figure}
+
+Aside from a mesh convergence study, a boundary-layer mesh was developed to provide a y+ spacing of less than one for the first node off the surface.
+Figures \ref{fig:method:yplus_top} and \ref{fig:method:yplus_bottom} show the y+ values for the fine mesh CFD solution.
+
+\begin{figure}[!ht]
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{Figures/yplus_top}
+    \caption{Top OFW Planform}
+    \label{fig:method:yplus_top}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{Figures/yplus_bottom}
+    \caption{Bottom OFW Planform}
+    \label{fig:method:yplus_bottom}
+  \end{subfigure}
+  \caption{Planform Views of y+ Values for Fine Grid RANS Solution.}
+\end{figure}

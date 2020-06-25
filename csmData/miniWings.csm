@@ -6,22 +6,23 @@
 # Contact Josh Deslich: jpdeslich@gmail.com for code/analysis related questions.
 
 # --------------------- MiniWing Config Parameters -------------
-CFGPMTR   span    4.0     # span of each individual wing (meters)
+CFGPMTR   span    0.383     # span of each individual wing (meters)
 CFGPMTR   aspect  8.0     # aspect ratio of each individual wing (dimless)
 CFGPMTR   af_row  2.0     # number of rows of wings (dimless)
-CFGPMTR   af_col  4.0     # number of columns of wings (dimless)
-CFGPMTR   stagger 4.0     # horizontal direction spacing within a row, x (meters)
-CFGPMTR   alpha_i 5.0     # global airfoil incidence angle
+CFGPMTR   af_col  6.0     # number of columns of wings (dimless)
+CFGPMTR   alpha_i 0.0     # global airfoil incidence angle
 
-CFGPMTR   visual  1.0     # Determines if af sections are ruled for visualization
+CFGPMTR   visual  0.0     # Determines if af sections are ruled for visualization
 
-SET       chord     span/aspect     # calculate chord of each individual wing (meters)
-SET       wingArea  chord*span      # Wing area
-SET       nSeries   0012            # NACA 0012 airfoil series
+SET       chord     span/aspect                   # calculate chord of each individual wing (meters)
+SET       wingArea  chord*span*af_row*af_col      # Wing area
+SET       nSeries   0012                          # NACA 0012 airfoil series
+
+CFGPMTR   stagger   2*chord     # horizontal direction spacing within a row, x (meters)
 
 # --------------------- MiniWing Design Parameters -------------
-DESPMTR  gap          1.0     # vertical direction spacing, y (meters)
-DESPMTR  stagger_row  1.0     # horizontal direction stagger between rows
+SET  gap          3.0*chord     # vertical direction spacing, y (meters)
+DESPMTR  stagger_row  0.0     # horizontal direction stagger between rows
 
 # --------------------- Wing Placement -------------------------
 # Determine x and y location of leading edge for each wing.
@@ -38,12 +39,14 @@ PATBEG  i  af_row
 
         # Generate airfoils - make left af
         UDPRIM   naca     Series    nSeries
+        SCALE    chord
         ROTATEX     90.00       0.00   0.00
         ROTATEY     alpha_i     0.00   0.00
         TRANSLATE   x_LE[i,j]  -span/2   z_LE[i,j]
 
         # Add af to individual wing capsGroup
         ATTRIBUTE   capsGroup          $wing+val2str(i,0)+val2str(j,0)
+        ATTRIBUTE   capsAIM            $avlAIM;frictionAIM
         ATTRIBUTE   capsReferenceArea  wingArea
         ATTRIBUTE   capsReferenceSpan  span
         ATTRIBUTE   capsReferenceChord chord
@@ -51,12 +54,14 @@ PATBEG  i  af_row
 
         # Generate airfoils - make right af
         UDPRIM   naca     Series    nSeries
+        SCALE    chord
         ROTATEX     90.00       0.00   0.00
         ROTATEY     alpha_i     0.00   0.00
         TRANSLATE   x_LE[i,j]   span/2   z_LE[i,j]
 
         # Add af wing capsGroup from above
         ATTRIBUTE   capsGroup  $wing+val2str(i,0)+val2str(j,0)
+        ATTRIBUTE   capsAIM    $avlAIM;frictionAIM
 
         # Only for visualization
         IFTHEN  visual  eq  1.0

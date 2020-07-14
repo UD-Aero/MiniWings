@@ -18,11 +18,11 @@ SET       chord     span/aspect                   # calculate chord of each indi
 SET       wingArea  chord*span*af_row*af_col      # Wing area
 SET       nSeries   0012                          # NACA 0012 airfoil series
 
-CFGPMTR   stagger   2*chord     # horizontal direction spacing within a row, x (meters)
+DESPMTR   stagger   1.0     # horizontal direction spacing in chord lengths within a row, x (meters)
 
 # --------------------- MiniWing Design Parameters -------------
-SET  gap          3.0*chord     # vertical direction spacing, y (meters)
-DESPMTR  stagger_row  0.0     # horizontal direction stagger between rows
+DESPMTR  gap          1.0           # vertical direction spacing, y (meters)
+DESPMTR  stagger_row  0.0           # horizontal direction stagger between rows
 
 # --------------------- Wing Placement -------------------------
 # Determine x and y location of leading edge for each wing.
@@ -34,8 +34,8 @@ DIMENSION z_LE   af_row   af_col   # allocate array
 PATBEG  i  af_row
     PATBEG  j  af_col
 
-        SET   x_LE[i,j]  chord*(j-1)*(2*stagger)+(i-1)*stagger_row      # set x LE position
-        SET   z_LE[i,j]  (i-1)*gap                                      # set y LE position
+        SET   x_LE[i,j]  chord*(j-1)+((j-1)*stagger*chord)+((i-1)*(stagger_row*chord))      # set x LE position
+        SET   z_LE[i,j]  (i-1)*(gap*chord)                                                  # set y LE position
 
         # Generate airfoils - make left af
         UDPRIM   naca     Series    nSeries

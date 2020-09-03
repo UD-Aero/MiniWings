@@ -5,17 +5,17 @@ import matplotlib.pyplot as plt
 from openmdao.api import Problem, Group, IndepVarComp, ExplicitComponent, ScipyOptimizeDriver
 import openmdao.api as om
 # Problem context:
-# Determine 'optimal design' for Cessna 172 - like aircraft.
+# Determine 'optimal design' for C-130 - like aircraft.
 # Use distributed lift wing set to compare with monowing and evaluate range
 # based L/D.
 #
-# Cessna 172 MTOW: 2450 lbs
-#
 # Design Variables:
-# alpha
 # gap
 # stagger
 # stagger_row
+# af_col
+# af_row
+# aspect
 
 geometryScript = os.path.join("..","csmData","miniWings.csm")
 workDir = 'GA'
@@ -43,10 +43,10 @@ for j in groups:
     wing.append((j, tmpDict))
 
 avl.setAnalysisVal("AVL_Surface", wing)
+avl.setAnalysisVal("Alpha", 5.0)
 
 # Create OpenMDAOComponent - ExternalCode
-avlComponent = avl.createOpenMDAOComponent(["Alpha", # Analysis inputs parameters
-                                            "gap", "stagger", 'stagger_row'], # Geometry design variables
+avlComponent = avl.createOpenMDAOComponent(["gap", "stagger", 'stagger_row', 'af_col', 'af_row', 'aspect'], # Geometry design variables
                                             ["CDtot", "CLtot", "Cmtot"], # Output parameters
                                             changeDir = True, # Change in the analysis directory during execution
                                             executeCommand = ["avl", "caps"],
@@ -64,7 +64,7 @@ friction = myProblem.loadAIM(aim = "frictionAIM",
 friction.setAnalysisVal("Mach", 0.1)
 friction.setAnalysisVal("Altitude", 900, units= "m")
 
-frictionComponent = friction.createOpenMDAOComponent(["gap", "stagger", 'stagger_row'], # Geometry design variables
+frictionComponent = friction.createOpenMDAOComponent(["gap", "stagger", 'stagger_row', 'af_col', 'af_row', 'aspect'], # Geometry design variables
                                                       ["CDtotal"], # Output parameters
                                                       changeDir = True, # Change in the analysis directory during execution
                                                       executeCommand = ["friction", "frictionInput.txt", "frictionOutput.txt > Info.out"],
@@ -97,10 +97,12 @@ class MaxLtoD(Group):
         super(MaxLtoD, self).__init__()
 
         # Add design variables
-        self.add_subsystem('dvAlpha', IndepVarComp('Alpha'))
-        self.add_subsystem('dvGap', IndepVarComp('gap'))
-        self.add_subsystem('dvStagger', IndepVarComp('stagger'))
-        self.add_subsystem('dvStaggerRow', IndepVarComp('stagger_row'))
+        self.add_subsystem('dv_Gap', IndepVarComp('gap'))
+        self.add_subsystem('dv_Stagger', IndepVarComp('stagger'))
+        self.add_subsystem('dv_StaggerRow', IndepVarComp('stagger_row'))
+        self.add_subsystem('dv_afCol', IndepVarComp('af_col'))
+        self.add_subsystem('dv_afRow', IndepVarComp('af_row'))
+        self.add_subsystem('dv_aspect', IndepVarComp('aspect'))
 
         # Add AVL component
         self.add_subsystem("AVL", avlComponent)
@@ -109,10 +111,20 @@ class MaxLtoD(Group):
         self.add_subsystem("L2D", l2dComponent())
 
         # Make connections between design variables and inputs to AVL and geometry
-        self.connect("dvAlpha.Alpha", "AVL.Alpha")
-        self.connect("dvGap.gap", "AVL.gap")
-        self.connect("dvStagger.stagger", "AVL.stagger")
-        self.connect("dvStaggerRow.stagger_row" , "AVL.stagger_row")
+        self.connect("dv_Gap.gap",                 "AVL.gap")
+        self.connect("dv_Stagger.stagger",         "AVL.stagger")
+        self.connect("dv_StaggerRow.stagger_row" , "AVL.stagger_row")
+        self.connect("dv_afCol.af_col" ,           "AVL.af_col")
+        self.connect("dv_afRow.af_row" ,           "AVL.af_row")
+        self.connect("dv_aspect.aspect" ,          "AVL.aspect")
+
+        # Make connections between design variables and inputs to Friction and geometry
+        self.connect("dv_Gap.gap",                 "Friction.gap")
+        self.connect("dv_Stagger.stagger",         "Friction.stagger")
+        self.connect("dv_StaggerRow.stagger_row" , "Friction.stagger_row")
+        self.connect("dv_afCol.af_col" ,           "Friction.af_col")
+        self.connect("dv_afRow.af_row" ,           "Friction.af_row")
+        self.connect("dv_aspect.aspect" ,          "Friction.aspect")
 
         # Connect AVL outputs to L2D calculation inputs
         self.connect("AVL.CDtot", "L2D.CD")
@@ -129,15 +141,17 @@ openMDAOProblem.driver = om.SimpleGADriver()
 #                                           'dvStaggerRow.stagger_row': 8,
 #                                           'dvGap.gap': 8,}
 openMDAOProblem.driver.options['max_gen'] = 10
-openMDAOProblem.driver.options['pop_size'] = 10
+openMDAOProblem.driver.options['pop_size'] = 50
 openMDAOProblem.driver.options['run_parallel'] = True
 openMDAOProblem.driver.options['procs_per_model'] = 2
 openMDAOProblem.driver.options['debug_print'] = ['desvars', 'objs', 'totals']
 
-openMDAOProblem.model.add_design_var('dvAlpha.Alpha', lower=-5.0, upper=10) # Analysis design values
-openMDAOProblem.model.add_design_var("dvGap.gap", lower=0.0, upper=2.0) # Geometry design values
-openMDAOProblem.model.add_design_var("dvStagger.stagger", lower=0.0, upper=2.0) # Geometry design values
-openMDAOProblem.model.add_design_var("dvStaggerRow.stagger_row", lower=0.0, upper=2.0)
+openMDAOProblem.model.add_design_var("dv_Gap.gap",                lower=0.5, upper=5.0) # Geometry design values
+openMDAOProblem.model.add_design_var("dv_Stagger.stagger",        lower=0.5, upper=5.0) # Geometry design values
+openMDAOProblem.model.add_design_var("dv_StaggerRow.stagger_row", lower=0.0, upper=5.0)
+openMDAOProblem.model.add_design_var("dv_afCol.af_col",           lower=1.0, upper=5.0)
+openMDAOProblem.model.add_design_var("dv_afRow.af_row",           lower=1.0, upper=5.0)
+openMDAOProblem.model.add_design_var("dv_aspect.aspect",          lower=5.0, upper=10.0)
 
 # Set objective
 openMDAOProblem.model.add_objective('L2D.L2D')
@@ -160,10 +174,12 @@ openMDAOProblem.driver.add_recorder(problemRecorder)
 # Setup and run
 openMDAOProblem.setup()
 
-openMDAOProblem.set_val('dvAlpha.Alpha', 0.0)
-openMDAOProblem.set_val('dvGap.gap', 0.0)
-openMDAOProblem.set_val('dvStagger.stagger', 0.0)
-openMDAOProblem.set_val('dvStaggerRow.stagger_row', 0.0)
+openMDAOProblem.set_val('dv_Gap.gap',                1.0)
+openMDAOProblem.set_val('dv_Stagger.stagger',        1.0)
+openMDAOProblem.set_val('dv_StaggerRow.stagger_row', 0.0)
+openMDAOProblem.set_val("dv_afCol.af_col",           1.0)
+openMDAOProblem.set_val("dv_afRow.af_row",           1.0)
+openMDAOProblem.set_val("dv_aspect.aspect",          8.0)
 
 openMDAOProblem.run_driver()
 
@@ -173,9 +189,8 @@ print('CDi: ', openMDAOProblem.get_val('AVL.CDtot'))
 print('CDf: ', openMDAOProblem.get_val('Friction.CDtotal'))
 
 print('Design Variables:')
-print('Alpha: ', openMDAOProblem.get_val('dvAlpha.Alpha'))
-print('Gap: ', openMDAOProblem.get_val('dvGap.gap'))
-print('Stagger: ', openMDAOProblem.get_val('dvStagger.stagger'))
-print('Stagger Row: ', openMDAOProblem.get_val('dvStaggerRow.stagger_row'))
+print('Gap: ', openMDAOProblem.get_val('dv_Gap.gap'))
+print('Stagger: ', openMDAOProblem.get_val('dv_Stagger.stagger'))
+print('Stagger Row: ', openMDAOProblem.get_val('dv_StaggerRow.stagger_row'))
 
 myProblem.closeCAPS()

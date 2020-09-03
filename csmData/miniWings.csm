@@ -5,24 +5,33 @@
 # Geometry code developed by: Josh Deslich
 # Contact Josh Deslich: jpdeslich@gmail.com for code/analysis related questions.
 
-# --------------------- MiniWing Config Parameters -------------
-CFGPMTR   span    0.383     # span of each individual wing (meters)
-CFGPMTR   aspect  8.0     # aspect ratio of each individual wing (dimless)
-CFGPMTR   af_row  2.0     # number of rows of wings (dimless)
-CFGPMTR   af_col  6.0     # number of columns of wings (dimless)
-CFGPMTR   alpha_i 0.0     # global airfoil incidence angle
 
-CFGPMTR   visual  0.0     # Determines if af sections are ruled for visualization
+# --------------------- MiniWing Fixed Parameters --------------
+# Monowing - b = 4ft, c = 0.4ft , AR = 10, Sref = 4*0.4*2
+# Monowing - full span b = 5ft, c = 0.4ft , AR = 10, Sref = 4*0.4*2
 
-SET       chord     span/aspect                   # calculate chord of each individual wing (meters)
-SET       wingArea  chord*span*af_row*af_col      # Wing area
-SET       nSeries   0012                          # NACA 0012 airfoil series
-
-DESPMTR   stagger   1.0     # horizontal direction spacing in chord lengths within a row, x (meters)
+SET       wingArea  3.2     # Wing area (ft**2)
 
 # --------------------- MiniWing Design Parameters -------------
-DESPMTR  gap          1.0           # vertical direction spacing, y (meters)
-DESPMTR  stagger_row  0.0           # horizontal direction stagger between rows
+DESPMTR  gap          1.0     # vertical direction spacing, y (ft)
+DESPMTR  stagger_row  0.0     # horizontal direction stagger between rows
+DESPMTR  stagger      1.0     # horizontal direction spacing in chord lengths within a row, x (ft)
+DESPMTR  af_row       2.0     # number of rows of wings (dimless)
+DESPMTR  af_col       1.0     # number of columns of wings (dimless)
+DESPMTR  aspect       6.0     # aspect ratio of each individual wing (dimless)
+
+# --------------------- MiniWing Config Parameters -------------
+CFGPMTR   alpha_i     0.0     # global airfoil incidence angle
+CFGPMTR   visual      0.0     # Determines if af sections are ruled for visualization
+CFGPMTR   nSeries     4412    # NACA 0012 airfoil series - change to Clark - Y
+
+# --------------------- MiniWing Dependent Parameters -------------
+SET      numWings     af_row*af_col
+SET      miniWingSA   wingArea/numWings
+
+# Using b**2/SA
+SET     span          sqrt(aspect*miniWingSA)
+SET     chord         span/aspect                   # calculate chord of each individual wing (ft)
 
 # --------------------- Wing Placement -------------------------
 # Determine x and y location of leading edge for each wing.
@@ -47,10 +56,12 @@ PATBEG  i  af_row
         # Add af to individual wing capsGroup
         ATTRIBUTE   capsGroup          $wing+val2str(i,0)+val2str(j,0)
         ATTRIBUTE   capsAIM            $avlAIM;frictionAIM
+        ATTRIBUTE   capsType           $Wing
         ATTRIBUTE   capsReferenceArea  wingArea
         ATTRIBUTE   capsReferenceSpan  span
         ATTRIBUTE   capsReferenceChord chord
         ATTRIBUTE   capsReferenceX     chord/4
+        ATTRIBUTE   capsLength         $ft
 
         # Generate airfoils - make right af
         UDPRIM   naca     Series    nSeries
@@ -62,6 +73,7 @@ PATBEG  i  af_row
         # Add af wing capsGroup from above
         ATTRIBUTE   capsGroup  $wing+val2str(i,0)+val2str(j,0)
         ATTRIBUTE   capsAIM    $avlAIM;frictionAIM
+        ATTRIBUTE   capsType   $Wing
 
         # Only for visualization
         IFTHEN  visual  eq  1.0

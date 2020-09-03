@@ -1,0 +1,34 @@
+% Scitech Presentation on OFW aero results
+\documentclass[10pt, aspectratio=169]{beamer}
+% \documentclass[10pt]{beamer}
+\mode<presentation>{\usetheme{default}}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{subcaption}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{media9}
+\usepackage{tikz}
+\usepackage[style=verbose]{biblatex}
+\usepackage{multimedia}
+\usepackage{pgfpages}
+\usetikzlibrary{calc}
+\newcommand{\tikzmark}[1]{\tikz[overlay,remember picture] \node (#1) {};}
+\usepackage{longtable,tabularx}
+
+% Title Page options:
+\title{Mini Wings Meeting}
+
+\author{Josh Deslich}
+
+\begin{document}
+
+\titlepage
+
+\input{Slides/problemSetup.tex}
+\input{Slides/designVariables.tex}
+\input{Slides/analysisSetup.tex}
+\input{Slides/GAresults.tex}
+
+\end{document}

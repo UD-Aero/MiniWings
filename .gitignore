@@ -1,4 +1,12 @@
 *.jrnl
 *.xlsx
 autosave.csm
+*.aux
+*.log
+*.bcf
+*.out
+*.nav
+*.xml
+*.snm
+*.toc
 GA/

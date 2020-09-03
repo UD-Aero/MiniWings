@@ -1,0 +1,23 @@
+\begin{frame}{Optimization Setup}
+
+The design variables used are:
+
+\begin{table}[h]
+  \centering
+      \begin{tabular}{lll}
+        \toprule[1.5pt]
+        \textbf{Design Variable} & \textbf{Lower Bound} & \textbf{Upper Bound} \\
+        \midrule
+        stagger     & 0.5 & 5.0 \\
+        stagger row & 0.0 & 5.0 \\
+        gap         & 0.5 & 5.0 \\
+        af col      & 1.0 & 5.0 \\
+        af row      & 1.0 & 5.0 \\
+        aspect      & 5.0 & 10.0 \\
+        \bottomrule[1.5pt]
+      \end{tabular}
+\end{table}
+
+\noindent The problem has no other constraints and uses a genetic algorithm to determine the best(s) solutions.
+
+\end{frame}
